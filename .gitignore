@@ -1,0 +1,10 @@
+.settings/
+.metadata
+.project
+*.o
+test.local
+.idea
+.DS_Store
+/pkg/*
+bin/
+
