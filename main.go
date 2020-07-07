@@ -3,7 +3,12 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
+	"net/http"
 	"os"
+	"time"
+
+	"github.com/gorilla/mux"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +17,16 @@ func main() {
 	setupConfig()
 	setupLogger()
 	r := setupRouter()
-	r.Run(getServiceAddr())
+
+	srv := &http.Server{
+		Handler: r,
+		Addr:    getServiceAddr(),
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }
 
 func getServiceAddr() string {
@@ -29,9 +43,10 @@ func setupLogger() {
 
 }
 
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-	v1 := r.Group("v1")
-	v1.GET("/", health)
+func setupRouter() *mux.Router {
+	r := mux.NewRouter()
+	s := r.PathPrefix("/v1").Subrouter()
+	s.HandleFunc("/", health).Methods(http.MethodGet)
+	s.HandleFunc("/", add).Methods(http.MethodPost)
 	return r
 }

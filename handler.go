@@ -1,9 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type request struct {
@@ -11,16 +10,20 @@ type request struct {
 	Email string `json:"email"`
 }
 
-func health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "pong"})
+func health(w http.ResponseWriter, r *http.Request) {
+	var response = map[string]string{
+		"message": "pong",
+	}
+	respondWithJSON(w, http.StatusOK, "SUCCESS", response)
 }
 
-func add(c *gin.Context) {
+func add(w http.ResponseWriter, r *http.Request) {
 	var req request
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "BAD_REQUEST"})
+	decoder := json.NewDecoder(r.Body)
+
+	if err := decoder.Decode(&req); err != nil {
+		respondWithJSON(w, http.StatusBadRequest, "BAD_REQUEST", nil)
 		return
 	}
-
-	c.JSON(http.StatusOK, req)
+	respondWithJSON(w, http.StatusOK, "SUCCESS", req)
 }

@@ -36,7 +36,7 @@ func setupConfig() {
 	}
 
 	getServiceConnection(serviceKey)
-	getMongoConnection(mongoKey)
+	//getMongoConnection(mongoKey)
 
 }
 
